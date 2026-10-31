@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Trivia Showdown — Neon Championship</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;600;700;800;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#101426;--panel:#1b1c35;--purple:#813cff;--cyan:#22d3ee;--gold:#f5c451;--red:#ff4565;--green:#24ce91;--muted:#a9b2d0}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 50% -20%,#38205f 0,transparent 55%),var(--bg);color:#fff;font-family:Rajdhani,sans-serif;min-height:100vh}
+header{display:flex;justify-content:space-between;align-items:center;padding:18px 4vw;border-bottom:1px solid #41335e;position:sticky;top:0;background:#101426ed;backdrop-filter:blur(12px);z-index:2}
+.brand{font:900 clamp(18px,3vw,28px) Orbitron;color:white;letter-spacing:1px;text-shadow:0 0 18px #813cff}.brand span{color:var(--gold)}
+.pill{border:1px solid var(--green);color:var(--green);border-radius:99px;padding:5px 12px;font-weight:700;font-size:13px}
+main{max-width:1200px;margin:auto;padding:28px 18px}.grid{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(260px,.85fr);gap:18px}
+.panel{background:linear-gradient(145deg,#211d3b,#171a30);border:1px solid #46366b;border-radius:18px;padding:22px;box-shadow:0 12px 40px #0005}
+h1,h2,h3,.eyebrow,.big{font-family:Orbitron,sans-serif}h1{font-size:clamp(23px,4vw,38px);line-height:1.25;margin:8px 0 20px}h2{font-size:18px;margin:0 0 15px}.eyebrow{color:var(--cyan);font-size:11px;letter-spacing:2px;font-weight:800}.muted{color:var(--muted)}
+input,button{font:600 17px Rajdhani,sans-serif;border-radius:10px;padding:12px 14px;border:1px solid #514477;background:#11162a;color:white;width:100%;margin:5px 0}
+button{cursor:pointer;background:linear-gradient(100deg,#7134e9,#9a48ff);border:0;font-weight:700;letter-spacing:.5px;box-shadow:0 5px 18px #813cff44}
+button.secondary{background:#282443;border:1px solid #5a4b80;box-shadow:none}button:disabled{opacity:.4;cursor:not-allowed}
+.row{display:flex;gap:8px;align-items:center}.row>*{flex:1}.hidden{display:none!important}
+.question{border:1px solid #7548c4;background:linear-gradient(140deg,#282044,#1b1b34);padding:24px;border-radius:15px;margin:16px 0}
+.timer{font:800 36px Orbitron;color:var(--gold);text-align:center;text-shadow:0 0 18px #f5c45166}
+.answer{font-size:21px}.player,.entry{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid #ffffff14;gap:10px}
+.score{color:var(--gold);font:700 15px Orbitron}.tag{font-size:11px;border-radius:30px;padding:3px 8px;background:#30284d;color:var(--cyan)}.alive{color:var(--green)}.out{color:var(--red)}
+.notice{padding:12px;border-radius:10px;background:#24213b;margin:12px 0}.good{border:1px solid var(--green);color:var(--green)}.bad{border:1px solid var(--red);color:#ff8195}
+.big{font-size:clamp(30px,6vw,52px);color:var(--gold);text-align:center;margin:14px}.code{font:900 32px Orbitron;color:var(--gold);letter-spacing:6px}
+footer{text-align:center;color:#7f87a5;padding:25px;font-size:13px}
+@keyframes pulse{50%{transform:scale(1.025);filter:brightness(1.3)}}.pulse{animation:pulse .8s infinite}
+@media(max-width:760px){.grid{grid-template-columns:1fr}header{padding:14px}.panel{padding:17px}.question{padding:18px}}
+</style></head>
+<body>
+<header><div class="brand">⚡ TRIVIA <span>SHOWDOWN</span></div><div class="pill">NEON CHAMPIONSHIP</div></header>
+<main>
+<section id="welcome" class="panel">
+ <div class="eyebrow">THE ULTIMATE BATTLE OF BRAINS</div><h1>THINK FAST.<br><span style="color:var(--gold)">SURVIVE. WIN.</span></h1>
+ <p class="muted">Create a room as host, or join a showdown from your phone.</p>
+ <div class="grid">
+  <div><h2>🎤 HOST A GAME</h2><input id="hostName" placeholder="Host name" value="Game Host"><button id="create">CREATE GAME ROOM</button><div id="created" class="notice hidden">Room code: <div class="code" id="roomCode"></div><p>Share this code with your players.</p></div></div>
+  <div><h2>📱 JOIN A GAME</h2><input id="joinCode" placeholder="6-character room code" maxlength="6"><input id="playerName" placeholder="Your player name"><button id="join" class="secondary">JOIN SHOWDOWN</button></div>
+ </div><div id="welcomeMsg" class="notice hidden"></div>
+</section>
+<section id="game" class="hidden">
+ <div class="grid">
+  <div class="panel">
+   <div class="row"><div class="eyebrow" id="roundLabel">ROUND 1</div><div style="text-align:right"><span class="tag" id="level">LOBBY</span></div></div>
+   <div id="lobby"><h1>THE ARENA IS WAITING</h1><p class="muted">Players join with the room code. The host starts when everyone is ready.</p><div class="big" id="lobbyCode"></div><button id="start">START SHOWDOWN</button></div>
+   <div id="questionArea" class="hidden"><div class="question"><div class="eyebrow" id="category"></div><h1 id="questionText"></h1><div class="timer" id="timer">⚡</div></div>
+    <div id="playerAnswer" class="hidden"><input id="answerInput" class="answer" placeholder="Type your answer..." autocomplete="off"><button id="submit">⚡ LOCK IN ANSWER</button></div>
+    <div id="hostControls" class="hidden"><button id="reveal" class="secondary">REVEAL CORRECT ANSWER</button><div id="revealText" class="notice hidden"></div><button id="next" class="hidden">NEXT ROUND →</button></div>
+    <div id="feedback" class="notice hidden"></div>
+   </div>
+   <div id="finished" class="hidden"><div class="eyebrow">CHAMPIONSHIP COMPLETE</div><h1>🏆 THE CHAMPION</h1><div class="big" id="winner"></div><p class="muted">The arena has spoken.</p></div>
+  </div>
+  <aside class="panel"><h2>🏆 LIVE SCOREBOARD</h2><div class="row"><div><div class="eyebrow">SURVIVORS</div><div class="big" id="survivors" style="font-size:30px">0</div></div><div><div class="eyebrow">ROUND</div><div class="big" id="roundNum" style="font-size:30px">—</div></div></div><div id="players"></div><h2 style="margin-top:22px">⚡ ANSWER FEED</h2><div id="feed" class="muted">Waiting for answers…</div></aside>
+ </div>
+</section>
+</main><footer>TRIVIA SHOWDOWN • NEON CHAMPIONSHIP • THINK FAST. SURVIVE. WIN.</footer>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+const socket=io();let role=null,room=null,myId=null,lastState=null,ctx=null;
+const $=id=>document.getElementById(id);
+function show(id){$(id).classList.remove("hidden")}function hide(id){$(id).classList.add("hidden")}
+function sound(freq=660,duration=.12,type="sine"){try{ctx=ctx||new(window.AudioContext||window.webkitAudioContext)();const o=ctx.createOscillator(),g=ctx.createGain();o.type=type;o.frequency.value=freq;g.gain.setValueAtTime(.08,ctx.currentTime);g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+duration);o.connect(g);g.connect(ctx.destination);o.start();o.stop(ctx.currentTime+duration)}catch(e){}}
+function msg(text,good){$("feedback").textContent=text;$("feedback").className="notice "+(good?"good":"bad");show("feedback")}
+$("create").onclick=()=>socket.emit("createRoom",{name:$("hostName").value},r=>{if(!r.ok)return;role="host";room=r.code;show("created");$("roomCode").textContent=room;enterGame()});
+$("join").onclick=()=>socket.emit("joinRoom",{code:$("joinCode").value,name:$("playerName").value},r=>{if(!r.ok){$("welcomeMsg").textContent=r.error;show("welcomeMsg");return}role="player";room=$("joinCode").value.toUpperCase();enterGame()});
+function enterGame(){hide("welcome");show("game");$("lobbyCode").textContent=room}
+$("start").onclick=()=>socket.emit("startGame",r=>{if(!r.ok)alert(r.error)});
+$("submit").onclick=()=>{const a=$("answerInput").value.trim();if(!a)return;socket.emit("submitAnswer",{answer:a},r=>{if(!r.ok)return msg(r.error,false);$("answerInput").value="";hide("playerAnswer");msg(r.correct?`CORRECT! +${r.points} POINTS`:"INCORRECT — YOU ARE ELIMINATED",r.correct);sound(r.correct?880:180,.3,r.correct?"sine":"sawtooth")})};
+$("answerInput").addEventListener("keydown",e=>{if(e.key==="Enter")$("submit").click()});
+$("reveal").onclick=()=>socket.emit("revealAnswer",()=>{});
+$("next").onclick=()=>socket.emit("nextRound",r=>{if(!r.ok)alert(r.error)});
+socket.on("notice",t=>alert(t));
+socket.on("state",s=>{
+ lastState=s;show("game");$("survivors").textContent=s.survivorCount;$("roundNum").textContent=s.round;$("roundLabel").textContent=`ROUND ${s.round} / ${s.totalRounds}`;
+ $("players").innerHTML=s.players.map((p,i)=>`<div class="player"><span>${i+1}. ${esc(p.name)} <small class="${p.alive?'alive':'out'}">${p.alive?'● ALIVE':'● ELIMINATED'}${p.connected?'':' · OFFLINE'}</small></span><span class="score">${p.score} PTS</span></div>`).join("");
+ $("feed").innerHTML=s.answers.length?s.answers.map(a=>`<div class="entry"><span>${esc(a.name)}</span><b class="${a.correct?'alive':'out'}">${a.correct?'+'+a.points+' pts':'OUT'}</b></div>`).join(""):"Waiting for answers…";
+ if(s.status==="lobby"){show("lobby");hide("questionArea");hide("finished");$("lobbyCode").textContent=s.code; $("start").disabled=role!=="host"||s.players.length<2}
+ if(s.status==="question"||s.status==="roundEnd"){hide("lobby");show("questionArea");hide("finished");$("level").textContent=s.question?.level||"ROUND COMPLETE";$("category").textContent=s.question?.category||"";$("questionText").textContent=s.question?.text||"Round complete";
+ const me=s.players.find(p=>p.id===socket.id);const answered=s.answers.some(a=>a.name===me?.name);
+ if(role==="player"&&s.status==="question"&&me?.alive&&!answered)show("playerAnswer");else hide("playerAnswer");
+ if(role==="host"){show("hostControls");$("next").classList.toggle("hidden",s.status!=="roundEnd");$("reveal").disabled=!!s.reveal;$("revealText").textContent=s.reveal?`Correct answer: ${s.reveal}`:"";s.reveal?show("revealText"):hide("revealText")}else hide("hostControls");
+ if(s.status==="roundEnd"){hide("playerAnswer");if(role==="host")show("next")}
+ }
+ if(s.status==="finished"){hide("lobby");hide("questionArea");show("finished");$("winner").textContent=s.winner||"NO SURVIVORS";sound(990,.5)}
+});
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+</script></body></html>
